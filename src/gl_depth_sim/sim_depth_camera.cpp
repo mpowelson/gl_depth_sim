@@ -126,11 +126,26 @@ bool gl_depth_sim::SimDepthCamera::add(const std::string mesh_id, const Mesh& me
   return true;
 }
 
+bool gl_depth_sim::SimDepthCamera::add( const Mesh& mesh, const Eigen::Affine3d& pose)
+{
+  const std::string mesh_id = "mesh" + std::to_string(rand()%1000);
+  std::unique_ptr<RenderableMesh> renderable_mesh (new RenderableMesh{mesh});
+
+  RenderableObjectState state;
+  state.mesh = std::move(renderable_mesh);
+  state.pose = pose;
+
+  objects_[mesh_id] = std::move(state);
+  return true;
+}
+
 bool gl_depth_sim::SimDepthCamera::move(const std::string mesh_id, const Eigen::Affine3d &pose)
 {
   objects_[mesh_id].pose = pose;
   return true;
 }
+
+
 
 void gl_depth_sim::SimDepthCamera::initGLFW()
 {
