@@ -58,6 +58,7 @@ public:
    * @brief Adds a triangle mesh to the scene with the given pose in world coordinates.
    */
   bool add(const std::string mesh_id, const Mesh& mesh, const Eigen::Affine3d& pose);
+  bool add(const Mesh& mesh, const Eigen::Affine3d& pose);
 
   /**
    * @brief Moves a triangle mesh within the scene given an identifier string and a pose in world coordinates.
