@@ -21,8 +21,13 @@ public:
 private:
   void setupGL(const Mesh& mesh);
 
+  /** @brief Vertex array object: */
   unsigned int vao_;
+  /** @brief Vertex buffer object: Stores vertices in GPU memory */
   unsigned int vbo_;
+
+  unsigned int tbo_;
+  /** @brief Element buffer object: Stores indices in vbo that get drawn */
   unsigned int ebo_;
   std::size_t num_indices_;
 };

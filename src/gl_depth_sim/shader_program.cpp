@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <glm/glm.hpp>
 
 void gl_depth_sim::ShaderProgram::init(const std::string& vertex_shader, const std::string& frag_shader)
 {
@@ -20,6 +21,7 @@ void gl_depth_sim::ShaderProgram::init(const std::string& vertex_shader, const s
     glGetShaderInfoLog(vshader, log.size(), NULL, log.data());
     std::cerr << "ERROR (VERTEX SHADER COMPILATION): " << log.data() << "\n";
     throw std::runtime_error("Vshader compile failed");
+    // Note: If you get the following error, remove the UTF-8 encoding with sed -i '1s/^\xEF\xBB\xBF//' my_file.txt
   }
 
   GLuint fshader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -39,6 +41,13 @@ void gl_depth_sim::ShaderProgram::init(const std::string& vertex_shader, const s
   id_ = glCreateProgram();
   glAttachShader(id_, vshader);
   glAttachShader(id_, fshader);
+
+  // Set the name of the outputs for Transform feedback
+  const GLchar* feedbackVaryings[] = { "VertexColorOut" };
+  // Set it such that tranform feedback is stored in its own buffer.
+  glTransformFeedbackVaryings(id_, 1, feedbackVaryings, GL_SEPARATE_ATTRIBS);
+
+  // Feedback must be set up prior to linking
   glLinkProgram(id_);
 
   // check for linking errors
@@ -95,6 +104,8 @@ gl_depth_sim::ShaderProgram::ShaderProgram(const std::string& vertex_shader_path
   }
 
   // Send to init
+//  std::cout << vertex_shader << std::endl;
+//  std::cout << frag_shader << std::endl;
   init(vertex_shader, frag_shader);
 }
 
@@ -108,14 +119,33 @@ gl_depth_sim::ShaderProgram::~ShaderProgram()
   glDeleteProgram(id_);
 }
 
+void gl_depth_sim::ShaderProgram::use() const { glUseProgram(id_);}
+
 void gl_depth_sim::ShaderProgram::setInt(const std::string& attr, int val)
 {
   GLuint loc = glGetUniformLocation(id_, attr.c_str());
   glUniform1i(loc, val);
 }
 
+void gl_depth_sim::ShaderProgram::setFloat(const std::string& attr, float val)
+{
+  GLuint loc = glGetUniformLocation(id_, attr.c_str());
+  glUniform1f(loc, val);
+}
+
+void gl_depth_sim::ShaderProgram::setUniformVec3(const std::string &attr, const Eigen::Vector3f &vec)
+{
+  GLuint loc = glGetUniformLocation(id_, attr.c_str());
+  glUniform3fv(loc, 1, vec.data());
+}
+
 void gl_depth_sim::ShaderProgram::setUniformMat4(const std::string& attr, const Eigen::Matrix4f& mat)
 {
   GLuint loc = glGetUniformLocation(id_, attr.c_str());
   glUniformMatrix4fv(loc, 1, GL_FALSE, mat.data());
+}
+//tODO Remove this
+void gl_depth_sim::ShaderProgram::setUniformMat4(const std::string &name, const glm::mat4 &mat)
+{
+    glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }

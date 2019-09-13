@@ -13,6 +13,7 @@ static std::unique_ptr<gl_depth_sim::Mesh> process(const aiScene* scene)
 
 
   gl_depth_sim::EigenAlignedVec<Eigen::Vector3f> vertices;
+  gl_depth_sim::EigenAlignedVec<Eigen::Vector3f> normals;
   std::vector<unsigned> indices;
 
   long index_offset = 0;
@@ -28,6 +29,8 @@ static std::unique_ptr<gl_depth_sim::Mesh> process(const aiScene* scene)
     {
       const aiVector3D& v =  mesh->mVertices[i];
       vertices.push_back({v.x, v.y, v.z});
+      const aiVector3D& n =  mesh->mNormals[i];
+      normals.push_back({n.x, n.y, n.z});
     }
 
     int skippedFaces = 0;
@@ -49,14 +52,14 @@ static std::unique_ptr<gl_depth_sim::Mesh> process(const aiScene* scene)
     }
     index_offset += nvert;
   }
-  return std::unique_ptr<gl_depth_sim::Mesh>(new gl_depth_sim::Mesh(vertices, indices));
+  return std::unique_ptr<gl_depth_sim::Mesh>(new gl_depth_sim::Mesh(vertices, normals, indices));
 }
 
 
 std::unique_ptr<gl_depth_sim::Mesh> gl_depth_sim::loadMesh(const std::string& path)
 {
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
 
   if (!scene)
   {

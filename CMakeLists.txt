@@ -67,6 +67,17 @@ target_link_libraries(${PROJECT_NAME}_interfaces
   ${OpenCV_LIBRARIES}
 )
 
+
+## Example showing deposition using lighting
+add_executable(${PROJECT_NAME}_lighting src/lighting_example.cpp)
+
+target_link_libraries(${PROJECT_NAME}_lighting
+  ${PROJECT_NAME}
+  ${PROJECT_NAME}_interfaces
+  ${catkin_LIBRARIES}
+)
+
+
 # Example showing basic usage
 add_executable(${PROJECT_NAME}_test src/usage_example.cpp)
 
@@ -100,7 +111,7 @@ target_link_libraries(${PROJECT_NAME}_ros_orbit
   ${catkin_LIBRARIES}
 )
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_interfaces
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_interfaces ${PROJECT_NAME}_lighting
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
